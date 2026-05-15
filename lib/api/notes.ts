@@ -1,26 +1,17 @@
 import axios from 'axios';
-import { Note, NotesResponse } from '@/types/note';
+import { Note } from '@/types/note';
 
-const BASE_URL = 'https://notehub-public-api.onrender.com/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://notehub-public.goit.study/api';
 
-const axiosInstance = axios.create({
-  baseURL: BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${process.env.NEXT_PUBLIC_NOTEHUB_TOKEN}`,
-  },
-});
-
-export const fetchNotes = async (tag?: string, page = 1): Promise<NotesResponse> => {
-  const params: Record<string, string | number> = { page, perPage: 12 };
-  if (tag && tag !== 'all') {
-    params.tag = tag;
-  }
-  const { data } = await axiosInstance.get<NotesResponse>('/notes', { params });
+// Отримати список нотаток (з опціональним фільтром по тегу)
+export async function fetchNotes(tag?: string): Promise<Note[]> {
+  const params = tag ? { tag } : {};
+  const { data } = await axios.get<Note[]>(`${API_BASE_URL}/notes`, { params });
   return data;
-};
+}
 
-export const fetchNoteById = async (id: number): Promise<Note> => {
-  const { data } = await axiosInstance.get<Note>(`/notes/${id}`);
+// Отримати одну нотатку по ID
+export async function fetchNoteById(id: string): Promise<Note> {
+  const { data } = await axios.get<Note>(`${API_BASE_URL}/notes/${id}`);
   return data;
-};
+}

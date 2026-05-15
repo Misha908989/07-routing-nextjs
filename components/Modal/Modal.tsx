@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useCallback } from 'react';
 import css from './Modal.module.css';
 
 interface ModalProps {
@@ -11,22 +10,17 @@ interface ModalProps {
 export default function Modal({ children }: ModalProps) {
   const router = useRouter();
 
-  const handleClose = useCallback(() => {
-    router.back();
-  }, [router]);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') handleClose();
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleClose]);
+  const handleClose = () => {
+    router.back(); // Повертає на попередній маршрут (/notes/filter/Work тощо)
+  };
 
   return (
     <div className={css.backdrop} onClick={handleClose}>
-      <div className={css.modal} onClick={(e) => e.stopPropagation()}>
-        <button className={css.closeButton} onClick={handleClose} aria-label="Close modal">
+      <div
+        className={css.modal}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button className={css.closeButton} onClick={handleClose}>
           ✕
         </button>
         {children}

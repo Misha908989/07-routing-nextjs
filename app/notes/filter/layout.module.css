@@ -1,14 +1,14 @@
 .layout {
   display: flex;
-  gap: 32px;
+  gap: 2rem;
+  padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 32px 16px;
 }
 
 .sidebar {
   flex-shrink: 0;
-  width: 220px;
+  width: 200px;
 }
 
 .content {

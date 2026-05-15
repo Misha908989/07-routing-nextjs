@@ -1,64 +1,41 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 24px;
-  animation: fadeIn 0.15s ease;
+  z-index: 100;
+  padding: 1rem;
 }
 
 .modal {
-  background: #fff;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 600px;
-  max-height: 80vh;
-  overflow-y: auto;
   position: relative;
-  animation: slideUp 0.2s ease;
+  background: var(--color-background-primary, #fff);
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
 }
 
 .closeButton {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  background: #f5f5f5;
+  top: 1rem;
+  right: 1rem;
+  background: none;
   border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  font-size: 16px;
+  font-size: 1.125rem;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.15s;
-  z-index: 1;
+  color: var(--color-text-secondary, #666);
+  line-height: 1;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: background 0.15s;
 }
 
 .closeButton:hover {
-  background-color: #e0e0e0;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  background: var(--color-background-secondary, #f0f0f0);
 }

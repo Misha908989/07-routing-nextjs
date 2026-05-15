@@ -1,0 +1,27 @@
+.menuList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.menuItem {
+  width: 100%;
+}
+
+.menuLink {
+  display: block;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--color-text-secondary, #555);
+  font-size: 0.95rem;
+  transition: background 0.15s, color 0.15s;
+}
+
+.menuLink:hover {
+  background: var(--color-background-secondary, #f0f0f0);
+  color: var(--color-text-primary, #1a1a1a);
+}

@@ -9,10 +9,9 @@ interface NoteCardProps {
 export default function NoteCard({ note }: NoteCardProps) {
   return (
     <Link href={`/notes/${note.id}`} className={css.card}>
-      <div className={css.tag}>{note.tag}</div>
       <h3 className={css.title}>{note.title}</h3>
-      <p className={css.content}>{note.content}</p>
-      <time className={css.date}>{new Date(note.createdAt).toLocaleDateString('uk-UA')}</time>
+      <p className={css.preview}>{note.content}</p>
+      {note.tag && <span className={css.tag}>{note.tag}</span>}
     </Link>
   );
 }

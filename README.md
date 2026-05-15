@@ -1,66 +1,71 @@
-# NoteHub — HW-07 Next.js Routing
+# NoteHub — HW-07 Routing
 
-Проєкт NoteHub — домашня робота з маршрутизації в Next.js (App Router).
-
-## Технології
-
-- **Next.js 14** (App Router)
-- **TypeScript**
-- **TanStack Query** (React Query) для CSR
-- **Axios** для HTTP-запитів
-- **CSS Modules** для стилізації
-- **Prettier** для форматування коду
-
-## Структура проєкту
+## Структура маршрутів
 
 ```
 app/
-├── layout.tsx                   # Root layout з підтримкою @modal slot
-├── page.tsx                     # Редірект на /notes/filter/all
-├── not-found.tsx                # 404 сторінка
-├── @modal/                      # Паралельний маршрут для модального вікна
-│   ├── default.tsx
-│   └── (.)notes/[id]/page.tsx   # Перехоплення маршруту /notes/:id
+├── not-found.tsx                          # 404 сторінка
+├── not-found.module.css
 └── notes/
-    ├── [id]/page.tsx            # Сторінка нотатки (пряма навігація)
+    ├── [id]/
+    │   ├── page.tsx                       # Пряме відкриття нотатки /notes/123
+    │   └── page.module.css
     └── filter/
-        ├── layout.tsx           # Layout з паралельними маршрутами
-        ├── page.tsx             # Редірект на /notes/filter/all
-        ├── @sidebar/            # Паралельний маршрут бічної панелі
-        │   ├── page.tsx
-        │   └── [...tag]/page.tsx
-        └── [...tag]/page.tsx    # Catch-all: фільтрація за тегом
+        ├── layout.tsx                     # Layout з @sidebar слотом
+        ├── layout.module.css
+        ├── @sidebar/
+        │   ├── page.tsx                   # SidebarNotes — меню тегів
+        │   └── SidebarNotes.module.css
+        ├── [...tag]/
+        │   ├── page.tsx                   # Список нотаток з фільтрацією (SSR)
+        │   └── page.module.css
+        └── (.)notes/
+            └── [id]/
+                └── page.tsx               # Intercepting route → Modal
 
 components/
-├── Header/
 ├── Modal/
+│   ├── Modal.tsx
+│   └── Modal.module.css
 ├── NoteCard/
-├── NoteList/
-├── NotePreview/
-├── SidebarNotes/
-└── ReactQueryProvider.tsx
-
-lib/api/
-└── notes.ts          # API функції
+│   ├── NoteCard.tsx
+│   └── NoteCard.module.css
+└── NotePreview/
+    ├── NotePreview.tsx
+    └── NotePreview.module.css
 
 types/
-└── note.ts           # Загальні типи та інтерфейси
+└── note.ts
+
+lib/api/
+└── notes.ts
 ```
 
-## Функціонал
+## Ключові концепції
 
-- **404 сторінка** — відображається для невідомих маршрутів
-- **Паралельні маршрути** — бічна панель з тегами та список нотаток рендеряться незалежно
-- **Catch-all маршрути** — `/notes/filter/[...tag]` для фільтрації за будь-яким тегом
-- **Перехоплення маршрутів** — при кліку на нотатку відкривається модальне вікно, URL змінюється на `/notes/:id`, фонова сторінка залишається
-- **SSR** — початкові дані завантажуються на сервері
-- **CSR з TanStack Query** — пагінація та оновлення даних на клієнті
+### Паралельні маршрути (@sidebar)
+Папка `@sidebar` є іменованим слотом. `layout.tsx` отримує `sidebar` як prop і
+відображає SidebarNotes поряд з основним контентом. При навігації між тегами
+sidebar не перерендерюється.
 
-## Запуск
+### Catch-all маршрут ([...tag])
+`params.tag` — масив сегментів. Перший елемент — обраний тег.
+Якщо тег `all`, запит до API відправляється без параметра тегу.
 
-```bash
-npm install
-npm run dev
+### Intercepting route ((.)notes/[id])
+При клієнтській навігації Next.js показує Modal поверх поточної сторінки.
+При прямому заходженні за URL — рендерить `app/notes/[id]/page.tsx`.
+
+### Закриття модального вікна
+`router.back()` повертає на попередній маршрут, а не на фіксований URL.
+
+## Налаштування
+
+Вкажи базовий URL API у `.env.local`:
+```
+NEXT_PUBLIC_API_BASE_URL=https://notehub-public.goit.study/api
 ```
 
-Відкрийте [http://localhost:3000](http://localhost:3000)
+## CSS стилі
+Скопіюй стилі з офіційного репозиторію:
+https://github.com/goitacademy/react-notehub-styles/tree/hw-07

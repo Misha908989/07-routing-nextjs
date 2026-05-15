@@ -7,13 +7,10 @@ interface NotePreviewProps {
 
 export default function NotePreview({ note }: NotePreviewProps) {
   return (
-    <article className={css.article}>
-      <div className={css.tag}>{note.tag}</div>
-      <h1 className={css.title}>{note.title}</h1>
+    <div className={css.container}>
+      <h2 className={css.title}>{note.title}</h2>
       <p className={css.content}>{note.content}</p>
-      <time className={css.date}>
-        Created: {new Date(note.createdAt).toLocaleDateString('uk-UA')}
-      </time>
-    </article>
+      {note.tag && <span className={css.tag}>{note.tag}</span>}
+    </div>
   );
 }

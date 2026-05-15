@@ -1,17 +1,17 @@
 import { fetchNoteById } from '@/lib/api/notes';
+import Modal from '@/components/Modal/Modal';
 import NotePreview from '@/components/NotePreview/NotePreview';
-import css from './page.module.css';
 
 interface Props {
   params: { id: string };
 }
 
-export default async function NotePage({ params }: Props) {
+export default async function InterceptedNotePage({ params }: Props) {
   const note = await fetchNoteById(params.id);
 
   return (
-    <div className={css.container}>
+    <Modal>
       <NotePreview note={note} />
-    </div>
+    </Modal>
   );
 }

@@ -1,18 +1,25 @@
 import { fetchNotes } from '@/lib/api/notes';
-import NoteList from '@/components/NoteList/NoteList';
+import NoteCard from '@/components/NoteCard/NoteCard';
+import css from './page.module.css';
 
-interface FilterPageProps {
-  params: Promise<{
-    tag: string[];
-  }>;
+interface Props {
+  params: { tag: string[] };
 }
 
-export default async function FilterPage({ params }: FilterPageProps) {
-  const { tag: tagArr } = await params;
-  const tag = tagArr?.[0];
-  const resolvedTag = tag === 'all' ? undefined : tag;
+export default async function FilterPage({ params }: Props) {
+  const [selectedTag] = params.tag;
 
-  const data = await fetchNotes(resolvedTag, 1);
+  // Бекенд не розуміє тег "all" — при "all" тег не передаємо
+  const tag = selectedTag === 'all' ? undefined : selectedTag;
+  const notes = await fetchNotes(tag);
 
-  return <NoteList initialNotes={data.notes} totalPages={data.totalPages} tag={tag} />;
+  return (
+    <ul className={css.list}>
+      {notes.map((note) => (
+        <li key={note.id}>
+          <NoteCard note={note} />
+        </li>
+      ))}
+    </ul>
+  );
 }
