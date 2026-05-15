@@ -1,0 +1,17 @@
+.layout {
+  display: flex;
+  gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+.sidebar {
+  flex-shrink: 0;
+  width: 220px;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
