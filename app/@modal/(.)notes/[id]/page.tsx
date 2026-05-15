@@ -10,9 +10,7 @@ interface ModalNotePageProps {
 }
 
 export default async function ModalNotePage({ params }: ModalNotePageProps) {
-  const { id: idStr } = await params;
-  const id = Number(idStr);
-  if (isNaN(id)) return notFound();
+  const { id } = await params;
 
   const note = await fetchNoteById(id).catch(() => null);
   if (!note) return notFound();
