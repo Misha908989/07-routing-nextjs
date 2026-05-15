@@ -4,13 +4,14 @@ import NotePreview from '@/components/NotePreview/NotePreview';
 import { notFound } from 'next/navigation';
 
 interface ModalNotePageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function ModalNotePage({ params }: ModalNotePageProps) {
-  const id = Number(params.id);
+  const { id: idStr } = await params;
+  const id = Number(idStr);
   if (isNaN(id)) return notFound();
 
   const note = await fetchNoteById(id).catch(() => null);

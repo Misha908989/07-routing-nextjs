@@ -43,3 +43,9 @@
   background-color: #eff6ff;
   color: #2563eb;
 }
+
+.active {
+  background-color: #dbeafe;
+  color: #2563eb;
+  font-weight: 600;
+}

@@ -3,13 +3,14 @@ import NotePreview from '@/components/NotePreview/NotePreview';
 import { notFound } from 'next/navigation';
 
 interface NotePageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function NotePage({ params }: NotePageProps) {
-  const id = Number(params.id);
+  const { id: idStr } = await params;
+  const id = Number(idStr);
   if (isNaN(id)) return notFound();
 
   const note = await fetchNoteById(id).catch(() => null);
