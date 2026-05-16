@@ -1,4 +1,12 @@
-import { Metadata } from 'next';
+import type { Metadata } from "next";
+import {
+  HydrationBoundary,
+  QueryClient,
+  dehydrate,
+} from "@tanstack/react-query";
+import { fetchNotes } from "@/lib/api";
+import { NoteTag } from "@/types/note";
+import NotesClient from "./Notes.client";
 
 interface Props {
   params: Promise<{ slug: string[] }>;
@@ -6,42 +14,39 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-
-  // slug[0] = filter type (e.g. 'tag'), slug[1] = filter value (e.g. 'Work')
-  const filterType = slug[0] ?? 'all';
-  const filterValue = slug[1] ?? '';
-
-  const label = filterValue
-    ? `${filterType}: ${filterValue}`
-    : filterType;
-
+  const tagParam = slug?.[0] ?? "all";
+  const label = tagParam === "all" ? "All notes" : `Tag: ${tagParam}`;
   return {
-    title: `Notes filtered by ${label} — NoteHub`,
-    description: `Browse NoteHub notes filtered by ${label}. Find exactly what you need quickly.`,
+    title: `${label} | NoteHub`,
+    description: `Viewing notes${tagParam !== "all" ? ` filtered by tag: ${tagParam}` : ""}.`,
     openGraph: {
-      title: `Notes filtered by ${label} — NoteHub`,
-      description: `Browse NoteHub notes filtered by ${label}. Find exactly what you need quickly.`,
-      url: `https://your-app.vercel.app/notes/filter/${slug.join('/')}`,
+      title: `${label} | NoteHub`,
+      description: `Viewing notes${tagParam !== "all" ? ` filtered by tag: ${tagParam}` : ""}.`,
+      url: `https://notehub.app/notes/filter/${slug?.join("/")}`,
       images: [
         {
-          url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
-          width: 1200,
-          height: 630,
-          alt: 'NoteHub',
+          url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
         },
       ],
     },
   };
 }
 
-export default async function FilterPage({ params }: Props) {
+export default async function FilteredNotesPage({ params }: Props) {
   const { slug } = await params;
+  const tagParam = slug?.[0];
+  // "all" means no tag filter — don't pass tag to API
+  const tag = tagParam && tagParam !== "all" ? (tagParam as NoteTag) : undefined;
 
-  // Your existing page rendering logic here
+  const queryClient = new QueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: ["notes", 1, "", tag],
+    queryFn: () => fetchNotes(1, "", tag),
+  });
+
   return (
-    <main>
-      <h1>Filtered Notes: {slug.join(' / ')}</h1>
-      {/* NotesClient or notes list component */}
-    </main>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <NotesClient tag={tag} />
+    </HydrationBoundary>
   );
 }

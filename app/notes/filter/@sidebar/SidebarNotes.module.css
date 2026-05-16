@@ -1,27 +1,29 @@
 .menuList {
   list-style: none;
-  margin: 0;
   padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 4px;
 }
 
 .menuItem {
-  width: 100%;
+  display: flex;
 }
 
 .menuLink {
   display: block;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
+  width: 100%;
+  padding: 10px 16px;
+  color: #a78bfa;
   text-decoration: none;
-  color: var(--color-text-secondary, #555);
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: all 0.2s;
   font-size: 0.95rem;
-  transition: background 0.15s, color 0.15s;
 }
 
 .menuLink:hover {
-  background: var(--color-background-secondary, #f0f0f0);
-  color: var(--color-text-primary, #1a1a1a);
+  background: #2d1b69;
+  border-color: #4c1d95;
 }

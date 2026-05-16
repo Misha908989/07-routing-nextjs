@@ -1,15 +1,16 @@
-import css from './layout.module.css';
+import css from "./filterLayout.module.css";
 
-interface FilterLayoutProps {
+export default function FilterLayout({
+  children,
+  sidebar,
+}: {
   children: React.ReactNode;
   sidebar: React.ReactNode;
-}
-
-export default function FilterLayout({ children, sidebar }: FilterLayoutProps) {
+}) {
   return (
     <div className={css.layout}>
-      <aside className={css.sidebar}>{sidebar}</aside>
-      <main className={css.content}>{children}</main>
+      {sidebar}
+      <div className={css.content}>{children}</div>
     </div>
   );
 }

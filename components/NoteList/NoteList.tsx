@@ -1,67 +1,52 @@
-'use client';
+"use client";
 
-import { useQuery } from '@tanstack/react-query';
-import { fetchNotes } from '@/lib/api/notes';
-import { Note } from '@/types/note';
-import NoteCard from '@/components/NoteCard/NoteCard';
-import css from './NoteList.module.css';
-import { useState } from 'react';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
+import { Note } from "@/types/note";
+import { deleteNote } from "@/lib/api";
+import css from "./NoteList.module.css";
 
 interface NoteListProps {
-  initialNotes: Note[];
-  totalPages: number;
-  tag?: string;
+  notes: Note[];
 }
 
-export default function NoteList({ initialNotes, totalPages: initialTotalPages, tag }: NoteListProps) {
-  const [page, setPage] = useState(1);
+export default function NoteList({ notes }: NoteListProps) {
+  const queryClient = useQueryClient();
 
-  const resolvedTag = tag === 'all' ? undefined : tag;
-
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['notes', resolvedTag, page],
-    queryFn: () => fetchNotes(resolvedTag, page),
-    initialData: page === 1 ? { notes: initialNotes, totalPages: initialTotalPages, totalNotes: 0 } : undefined,
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteNote(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+    },
   });
 
-  const notes = data?.notes ?? initialNotes;
-  const totalPages = data?.totalPages ?? initialTotalPages;
-
-  if (isLoading) return <p className={css.message}>Loading notes...</p>;
-  if (isError) return <p className={css.message}>Failed to load notes.</p>;
-  if (!notes.length) return <p className={css.message}>No notes found.</p>;
+  if (notes.length === 0) {
+    return <p className={css.empty}>No notes found. Create your first one!</p>;
+  }
 
   return (
-    <div>
-      <ul className={css.grid}>
-        {notes.map((note) => (
-          <li key={note.id}>
-            <NoteCard note={note} />
-          </li>
-        ))}
-      </ul>
-
-      {totalPages > 1 && (
-        <div className={css.pagination}>
-          <button
-            className={css.pageButton}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-          >
-            ← Prev
-          </button>
-          <span className={css.pageInfo}>
-            {page} / {totalPages}
-          </span>
-          <button
-            className={css.pageButton}
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-          >
-            Next →
-          </button>
-        </div>
-      )}
-    </div>
+    <ul className={css.list}>
+      {notes.map((note) => (
+        <li key={note.id} className={css.item}>
+          <div className={css.header}>
+            <h3 className={css.title}>{note.title}</h3>
+            <span className={css.tag}>{note.tag}</span>
+          </div>
+          <p className={css.content}>{note.content}</p>
+          <div className={css.actions}>
+            <Link href={`/notes/${note.id}`} className={css.viewLink}>
+              View details
+            </Link>
+            <button
+              onClick={() => deleteMutation.mutate(note.id)}
+              className={css.deleteButton}
+              disabled={deleteMutation.isPending}
+            >
+              Delete
+            </button>
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }

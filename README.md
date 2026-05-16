@@ -1,71 +1,36 @@
-# NoteHub — HW-07 Routing
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Структура маршрутів
+## Getting Started
 
-```
-app/
-├── not-found.tsx                          # 404 сторінка
-├── not-found.module.css
-└── notes/
-    ├── [id]/
-    │   ├── page.tsx                       # Пряме відкриття нотатки /notes/123
-    │   └── page.module.css
-    └── filter/
-        ├── layout.tsx                     # Layout з @sidebar слотом
-        ├── layout.module.css
-        ├── @sidebar/
-        │   ├── page.tsx                   # SidebarNotes — меню тегів
-        │   └── SidebarNotes.module.css
-        ├── [...tag]/
-        │   ├── page.tsx                   # Список нотаток з фільтрацією (SSR)
-        │   └── page.module.css
-        └── (.)notes/
-            └── [id]/
-                └── page.tsx               # Intercepting route → Modal
+First, run the development server:
 
-components/
-├── Modal/
-│   ├── Modal.tsx
-│   └── Modal.module.css
-├── NoteCard/
-│   ├── NoteCard.tsx
-│   └── NoteCard.module.css
-└── NotePreview/
-    ├── NotePreview.tsx
-    └── NotePreview.module.css
-
-types/
-└── note.ts
-
-lib/api/
-└── notes.ts
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-## Ключові концепції
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-### Паралельні маршрути (@sidebar)
-Папка `@sidebar` є іменованим слотом. `layout.tsx` отримує `sidebar` як prop і
-відображає SidebarNotes поряд з основним контентом. При навігації між тегами
-sidebar не перерендерюється.
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-### Catch-all маршрут ([...tag])
-`params.tag` — масив сегментів. Перший елемент — обраний тег.
-Якщо тег `all`, запит до API відправляється без параметра тегу.
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-### Intercepting route ((.)notes/[id])
-При клієнтській навігації Next.js показує Modal поверх поточної сторінки.
-При прямому заходженні за URL — рендерить `app/notes/[id]/page.tsx`.
+## Learn More
 
-### Закриття модального вікна
-`router.back()` повертає на попередній маршрут, а не на фіксований URL.
+To learn more about Next.js, take a look at the following resources:
 
-## Налаштування
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-Вкажи базовий URL API у `.env.local`:
-```
-NEXT_PUBLIC_API_BASE_URL=https://notehub-public.goit.study/api
-```
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## CSS стилі
-Скопіюй стилі з офіційного репозиторію:
-https://github.com/goitacademy/react-notehub-styles/tree/hw-07
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

@@ -1,109 +1,97 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { useNoteStore } from '@/lib/store/noteStore';
-import { createNote } from '@/lib/api/notes';
-import css from './NoteForm.module.css';
+import { useFormik, ErrorMessage, FormikProvider } from "formik";
+import * as Yup from "yup";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createNote } from "@/lib/api";
+import { CreateNoteData, NoteTag } from "@/types/note";
+import css from "./NoteForm.module.css";
 
-const TAG_OPTIONS = ['Todo', 'Work', 'Personal', 'Meeting', 'Shopping'];
+const TAGS: NoteTag[] = ["Todo", "Work", "Personal", "Meeting", "Shopping"];
 
-export default function NoteForm() {
-  const router = useRouter();
-  const { draft, setDraft, clearDraft } = useNoteStore();
-  const isHydrated = useRef(false);
+const validationSchema = Yup.object({
+  title: Yup.string()
+    .min(3, "Title must be at least 3 characters")
+    .max(50, "Title must be at most 50 characters")
+    .required("Title is required"),
+  content: Yup.string().max(500, "Content must be at most 500 characters"),
+  tag: Yup.string().oneOf(TAGS).required("Tag is required"),
+});
 
-  useEffect(() => {
-    isHydrated.current = true;
-  }, []);
+interface NoteFormProps {
+  onClose: () => void;
+}
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setDraft({ [name]: value });
-  };
+export default function NoteForm({ onClose }: NoteFormProps) {
+  const queryClient = useQueryClient();
 
-  const handleSubmit = async (formData: FormData) => {
-    const title = formData.get('title') as string;
-    const content = formData.get('content') as string;
-    const tag = formData.get('tag') as string;
+  const mutation = useMutation({
+    mutationFn: (data: CreateNoteData) => createNote(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      onClose();
+    },
+  });
 
-    try {
-      await createNote({ title, content, tag });
-      clearDraft();
-      router.back();
-    } catch (error) {
-      console.error('Failed to create note:', error);
-    }
-  };
-
-  const handleCancel = () => {
-    // Draft is NOT cleared — user can return to continue editing
-    router.back();
-  };
+  const formik = useFormik<CreateNoteData>({
+    initialValues: { title: "", content: "", tag: "Todo" },
+    validationSchema,
+    onSubmit: (values) => mutation.mutate(values),
+  });
 
   return (
-    <form className={css.form} action={handleSubmit}>
-      <div className={css.formGroup}>
-        <label className={css.label} htmlFor="title">
+    <FormikProvider value={formik}>
+      <h2 className={css.heading}>Create New Note</h2>
+      <form onSubmit={formik.handleSubmit} className={css.form}>
+        <label className={css.label}>
           Title
+          <input
+            type="text"
+            name="title"
+            value={formik.values.title}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            className={css.input}
+          />
+          <ErrorMessage name="title" component="span" className={css.error} />
         </label>
-        <input
-          id="title"
-          className={css.input}
-          type="text"
-          name="title"
-          placeholder="Enter note title"
-          value={draft.title}
-          onChange={handleChange}
-          required
-        />
-      </div>
-
-      <div className={css.formGroup}>
-        <label className={css.label} htmlFor="content">
+        <label className={css.label}>
           Content
+          <textarea
+            name="content"
+            value={formik.values.content}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            className={css.textarea}
+            rows={4}
+          />
+          <ErrorMessage name="content" component="span" className={css.error} />
         </label>
-        <textarea
-          id="content"
-          className={css.textarea}
-          name="content"
-          placeholder="Enter note content"
-          rows={8}
-          value={draft.content}
-          onChange={handleChange}
-          required
-        />
-      </div>
-
-      <div className={css.formGroup}>
-        <label className={css.label} htmlFor="tag">
+        <label className={css.label}>
           Tag
+          <select
+            name="tag"
+            value={formik.values.tag}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            className={css.select}
+          >
+            {TAGS.map((t) => (
+              <option key={t} value={t}>{t}</option>
+            ))}
+          </select>
+          <ErrorMessage name="tag" component="span" className={css.error} />
         </label>
-        <select
-          id="tag"
-          className={css.select}
-          name="tag"
-          value={draft.tag}
-          onChange={handleChange}
-        >
-          {TAG_OPTIONS.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className={css.actions}>
-        <button type="button" className={css.cancelButton} onClick={handleCancel}>
-          Cancel
-        </button>
-        <button type="submit" className={css.submitButton}>
-          Create note
-        </button>
-      </div>
-    </form>
+        <div className={css.actions}>
+          <button type="button" onClick={onClose} className={css.cancelButton}>
+            Cancel
+          </button>
+          <button type="submit" className={css.submitButton} disabled={mutation.isPending || !formik.isValid}>
+            {mutation.isPending ? "Creating..." : "Create"}
+          </button>
+        </div>
+        {mutation.isError && <p className={css.error}>Failed to create note. Try again.</p>}
+      </form>
+    </FormikProvider>
   );
 }

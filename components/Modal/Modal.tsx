@@ -1,30 +1,33 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import css from './Modal.module.css';
+import { useEffect } from "react";
+import { createPortal } from "react-dom";
+import css from "./Modal.module.css";
 
 interface ModalProps {
+  onClose: () => void;
   children: React.ReactNode;
 }
 
-export default function Modal({ children }: ModalProps) {
-  const router = useRouter();
+export default function Modal({ onClose, children }: ModalProps) {
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [onClose]);
 
-  const handleClose = () => {
-    router.back(); // Повертає на попередній маршрут (/notes/filter/Work тощо)
-  };
-
-  return (
-    <div className={css.backdrop} onClick={handleClose}>
-      <div
-        className={css.modal}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button className={css.closeButton} onClick={handleClose}>
-          ✕
-        </button>
+  return createPortal(
+    <div className={css.overlay} onClick={onClose}>
+      <div className={css.modal} onClick={(e) => e.stopPropagation()}>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
